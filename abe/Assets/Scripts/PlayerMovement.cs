@@ -26,6 +26,7 @@ public class PlayerMovement : MonoBehaviour
     public int Flashes = 15;
     public float FlashHold;
     public EngineController Engine;
+    public string ControlAxis;
 
     private Quaternion _initialRotation;
     private bool _flashing;
@@ -59,7 +60,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!Launched) return;
 
-        float horizontalAxis = Input.GetAxis("Horizontal");
+        float horizontalAxis = Input.GetAxis(ControlAxis);
         float turnAngle = horizontalAxis * 45f;
         transform.rotation = Quaternion.AngleAxis(turnAngle, Vector3.up) * _initialRotation;
 

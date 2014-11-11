@@ -21,7 +21,7 @@ public class LevelGenerator : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        float zPos = transform.position.z + GeneratorDistance + GridUnitSize;
+        float zPos = transform.position.z + (GeneratorDistance + GridUnitSize);
 
         if (zPos >= _nextZ)
         {
