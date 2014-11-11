@@ -16,11 +16,11 @@ public class Explode : MonoBehaviour
 	
 	}
 
-    void OnTriggerEnter2D(Collider2D other)
+    void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            other.SendMessage("OnTriggerEnter2D", collider2D); // Force the other dude to get this message too.
+            other.SendMessage("OnTriggerEnter", collider); // Force the other dude to get this message too.
             var explosion = Instantiate(Explosion, transform.position, Quaternion.identity) as ParticleSystem;
             Destroy(explosion, Explosion.startLifetime);
             Destroy(gameObject);

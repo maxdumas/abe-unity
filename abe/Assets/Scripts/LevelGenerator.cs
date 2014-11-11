@@ -3,47 +3,35 @@ using System.Collections;
 
 public class LevelGenerator : MonoBehaviour
 {
-    public MasterController Controller;
-    public Transform UpperBound;
-    public Transform LowerBound;
+    public Transform RightBound;
+    public Transform LeftBound;
     public float MinObstacleFrequency = 10f;
     public float GridUnitSize = 2f; // Obstacles will snap grid with this unit size
     public GameObject Obstacle;
+    public float GeneratorDistance; // Distance from player at which to generate an obstacle
 
-    private float _levelRadius;
-    private float _screenHalfWidth;
-    private float _nextX;
+    private float _nextZ;
 
     // Use this for initialization
     private void Start()
     {
-        Vector3 tl = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, Camera.main.nearClipPlane));
-        Vector3 tr = Camera.main.ViewportToWorldPoint(new Vector3(1, 0, Camera.main.nearClipPlane));
-        _screenHalfWidth = (tl - tr).magnitude/2f;
-
-        _levelRadius = Controller.LevelCircumference/(Mathf.PI*2f);
-
-        _nextX = transform.position.x + _screenHalfWidth + GridUnitSize;
+        _nextZ = transform.position.z + GeneratorDistance + GridUnitSize;
     }
 
     // Update is called once per frame
     private void Update()
     {
-        // We want to generate obstacles in between the y-coordinates of upperbound and lowerbound with some regularity.
-        // Remember - the loop will never be repeated, as each player starts on opposite ends of it, and once they pass a new loop with half circumference is created
+        float zPos = transform.position.z + GeneratorDistance + GridUnitSize;
 
-        
-        float xPos = transform.position.x + _screenHalfWidth + GridUnitSize;
-
-        if (xPos >= _nextX)
+        if (zPos >= _nextZ)
         {
-            _nextX = xPos + Random.Range(GridUnitSize, MinObstacleFrequency*GridUnitSize);
+            _nextZ = zPos + Random.Range(GridUnitSize, MinObstacleFrequency*GridUnitSize);
 
             // Generate our obstacle
-            float range = UpperBound.position.y - LowerBound.position.y;
-            float yPos = Mathf.Floor(Random.Range(LowerBound.position.y, UpperBound.position.y) / GridUnitSize) * GridUnitSize;
+            //float range = RightBound.position.x - LeftBound.position.x;
+            float xPos = Mathf.Floor(Random.Range(LeftBound.position.x, RightBound.position.x) / GridUnitSize) * GridUnitSize;
 
-            Instantiate(Obstacle, new Vector3(xPos, yPos, 0f), Quaternion.identity);
+            Instantiate(Obstacle, new Vector3(xPos, 0f, zPos), Quaternion.identity);
         }
     }
 }

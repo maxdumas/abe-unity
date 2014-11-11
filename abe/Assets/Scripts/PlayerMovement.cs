@@ -10,38 +10,45 @@ public class PlayerMovement : MonoBehaviour
         set
         {
             _launched = value;
-            if(Launched)
+            if (Launched)
                 Launch();
         }
     }
 
-    public MasterController Controller;
     public float Speed = 0f;
     public float MaxSpeed = 35f;
-    public float Acceleration = 0.2f;
+    public float Acceleration = 0.1f;
 
-    public float InitialAngle = 135f;
-    public float FinalAngle = 90f;
+    //public float InitialAngle = 135f;
+    //public float FinalAngle = 90f;
 
     public bool Invincible;
     public int Flashes = 15;
     public float FlashHold;
     public EngineController Engine;
 
+    private Quaternion _initialRotation;
     private bool _flashing;
     private bool _launched;
+
+    private Renderer _modelRenderer;
 
     // Use this for initialization
     private void Start()
     {
+        _modelRenderer = GetComponentInChildren<MeshRenderer>();
+        _initialRotation = transform.rotation;
     }
 
     private void Update()
     {
-        if (!Launched) return;
+        if (!Launched)
+            return;
 
-        if(Speed < MaxSpeed)
-            Speed += 0.1f;
+        transform.position = new Vector3(transform.position.x, 0f, transform.position.z);
+
+        if (Speed < MaxSpeed)
+            Speed += Acceleration;
 
         if (Invincible && !_flashing)
             StartCoroutine(Flash());
@@ -52,20 +59,17 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!Launched) return;
 
-        float tiltAngle = Mathf.Lerp(InitialAngle, FinalAngle, Math.Min(1f, Speed * 1.5f/MaxSpeed));
+        float horizontalAxis = Input.GetAxis("Horizontal");
+        float turnAngle = horizontalAxis * 45f;
+        transform.rotation = Quaternion.AngleAxis(turnAngle, Vector3.up) * _initialRotation;
 
-        //float fx = Speed;
-        float v = Input.GetAxis("Vertical");
-        //float fy = Speed*v;
-        float turnAngle = v*45f;
-
-        //rigidbody2D.velocity = new Vector2(fx, fy);
-        transform.rotation = Quaternion.AngleAxis(tiltAngle + turnAngle, Vector3.forward);
-        rigidbody2D.velocity = transform.up*Speed;
+        var planarDir = new Vector3(transform.up.x, 0f, transform.up.z);
+        rigidbody.velocity = planarDir * Speed;
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    void OnTriggerEnter(Collider other)
     {
+        Debug.Log("Hit!");
         if (other.gameObject.CompareTag("DestroyableObstacle") && !Invincible)
         {
             Speed /= 2f;
@@ -76,14 +80,14 @@ public class PlayerMovement : MonoBehaviour
     private IEnumerator Flash()
     {
         _flashing = true;
-        for(int i = 0; i < Flashes; ++i)
+        for (int i = 0; i < Flashes; ++i)
         {
-            renderer.enabled = true;
+            _modelRenderer.enabled = true;
             yield return new WaitForSeconds(FlashHold);
-            renderer.enabled = false;
+            _modelRenderer.enabled = false;
             yield return new WaitForSeconds(FlashHold);
         }
-        renderer.enabled = true;
+        _modelRenderer.enabled = true;
         _flashing = false;
         Invincible = false;
     }
